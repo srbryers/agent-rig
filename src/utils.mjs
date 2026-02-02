@@ -137,6 +137,9 @@ export function execCommand(command, args, options = {}) {
     execFile(command, args, {
       timeout: options.timeout || 30000,
       maxBuffer: 1024 * 1024,
+      // shell: true is required for Windows where npx is a .cmd shim
+      // that execFile cannot resolve without a shell. Input sanitization
+      // is handled by callers (e.g., discover.mjs strips metacharacters).
       shell: true,
     }, (error, stdout, stderr) => {
       resolve({

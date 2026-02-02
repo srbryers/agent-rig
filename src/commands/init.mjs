@@ -114,7 +114,10 @@ export async function init(flags) {
   console.log("Files to generate:");
   for (const f of filesToWrite) {
     const exists = await fileExists(f.path);
-    const tag = exists ? " (merge)" : " (create)";
+    const isMergeable = f.label === "CLAUDE.md" ||
+                        f.label === ".claude/settings.json" ||
+                        f.label === ".claude/.mcp.json";
+    const tag = exists ? (isMergeable ? " (merge)" : " (overwrite)") : " (create)";
     console.log(`  ${f.label}${tag}`);
   }
   console.log();
