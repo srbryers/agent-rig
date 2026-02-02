@@ -196,3 +196,85 @@ Do NOT recommend:
 5. **Agents for small codebases** — Code review agents add overhead for <100 file projects
 6. **Conflicting hooks** — Don't have two hooks that format the same file type differently
 7. **Platform-incompatible commands** — Always check platform before recommending shell-specific commands
+
+---
+
+## 9. Project-Type Template Matching
+
+Templates provide curated, domain-specific configurations for well-known project types. They are stored as markdown files in `~/.claude/skills/project-setup/templates/`.
+
+### Detection Fields
+
+Each template defines detection criteria in its YAML frontmatter:
+
+| Field | Type | How to Check |
+|-------|------|-------------|
+| `files_any` | list of glob patterns | At least one pattern matches a file in the project |
+| `config_files_any` | list of file paths | At least one config file exists |
+| `package_json_deps_any` | list of package names | At least one package is in dependencies or devDependencies |
+| `python_deps_any` | list of package names | At least one package is in pyproject.toml deps or requirements.txt |
+
+### Confidence Threshold
+
+A template matches when **at least 2 detection field groups** are satisfied. Confidence is expressed as `N/M` where N is the number of matched groups and M is the total number of non-empty detection groups for that template.
+
+| Matched Groups | Confidence | Action |
+|---------------|------------|--------|
+| 0–1 | Low | Do not include template items |
+| 2 | Medium | Include template items, note as "medium confidence" |
+| 3+ | High | Include template items, note as "high confidence" |
+
+### Merge Priority Rules
+
+When a template matches and its items overlap with heuristic-based recommendations:
+
+| Item Type | Overlap Rule | Rationale |
+|-----------|-------------|-----------|
+| CLAUDE.md sections | Template section **replaces** generic section with same heading | Templates have domain-specific content that is more accurate |
+| Hooks | Template hook **replaces** generic hook with same event + matcher | Templates know the right tool for the domain (e.g., theme-check vs generic linter) |
+| Skills | **Additive** — both template and generic skills are included | Domain skills complement generic skills |
+| Agents | **Additive** — both template and generic agents are included | Domain reviewers complement generic reviewers |
+| MCP servers | Template server **replaces** generic server with same name | Templates may have better configuration for the domain |
+
+### Item ID Convention
+
+Template-sourced items use `[T]` prefix IDs in the Phase 2 report:
+
+- `TC1`, `TC2`, ... — CLAUDE.md sections from template
+- `TH1`, `TH2`, ... — Hooks from template
+- `TS1`, `TS2`, ... — Skills from template
+- `TA1`, `TA2`, ... — Agents from template
+- `TM1`, `TM2`, ... — MCP servers from template
+
+Users can skip or modify template items using these IDs, the same as any other recommendation.
+
+---
+
+## 10. External Skill Discovery Heuristics
+
+External skills are community-authored Claude Code skills available via the `npx skills` CLI and the skills.sh registry. During Phase 1, discover relevant skills by mapping detected frameworks to search queries.
+
+### Framework-to-Query Mapping
+
+| Detected Framework | Search Queries |
+|-------------------|----------------|
+| React / Next.js | `react`, `nextjs` |
+| Vue / Nuxt | `vue`, `nuxt` |
+| Shopify | `shopify` |
+| Python / FastAPI | `fastapi`, `python api` |
+| Django | `django` |
+| TypeScript | `typescript` |
+| Tailwind | `tailwind` |
+| Svelte / SvelteKit | `svelte` |
+| Go / Gin / Echo | `golang` |
+| Rust | `rust` |
+
+### Discovery Rules
+
+1. **Max 3 queries** — Select the most specific queries first (e.g., `fastapi` before `python api`). Stop after 3 queries to limit latency.
+2. **Dedup by repository** — If the same repository appears in multiple query results, keep only one entry.
+3. **Exclude overlaps with template skills** — If a template matched and has `external_skills`, skip any discovered skills that share the same repository + skill name.
+4. **Limit to top 5** — After dedup and filtering, keep the 5 most relevant results (prefer higher install counts).
+5. **Fall back on failure** — If `npx skills find` fails (timeout, npx unavailable, network error), use the template's `external_skills` list as the E# items in Phase 2.
+6. **Source tagging** — Tag each E# item with its source: `[D]` for discovered via `npx skills find`, `[T]` for from the template's `external_skills` list.
+7. **No blocking** — Discovery failures must not prevent the rest of Phase 1 from completing. Treat discovery as best-effort.
