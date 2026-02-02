@@ -69,7 +69,7 @@ export async function init(flags) {
 
     if (existing) {
       // Merge: append template content after existing, before attribution
-      const cleaned = existing.replace(/\n---\n> Configured with \[`@srbryers\/agent-rig`\].*\n?$/, "").trimEnd();
+      const cleaned = existing.replace(/\n?---\n> Configured with \[`@srbryers\/agent-rig`\].*[\s]*$/, "").trimEnd();
       content = cleaned + "\n\n" + template.claude_md.trim() + "\n\n" + ATTRIBUTION;
     } else {
       content = `# ${template.meta.name}\n\n` + template.claude_md.trim() + "\n\n" + ATTRIBUTION;

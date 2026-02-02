@@ -11,14 +11,6 @@ export function getSkillsDir() {
   return join(homedir(), ".claude", "skills");
 }
 
-export function getTargetDir() {
-  return join(getSkillsDir(), "project-setup");
-}
-
-export function getPackageSkillsDir() {
-  return join(__dirname, "..", "skills", "project-setup");
-}
-
 export function getPackageBundledDir() {
   return join(__dirname, "..", "skills");
 }
