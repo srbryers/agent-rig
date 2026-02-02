@@ -1,7 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { homedir } from "node:os";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -10,13 +9,6 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
  */
 export function getTemplatesDir() {
   return join(__dirname, "..", "skills", "project-setup", "templates");
-}
-
-/**
- * Returns the path to the installed templates directory.
- */
-export function getInstalledTemplatesDir() {
-  return join(homedir(), ".claude", "skills", "project-setup", "templates");
 }
 
 /**
@@ -144,125 +136,108 @@ function extractFrontmatter(content) {
 
 /**
  * Hand-rolled shallow YAML parser for frontmatter.
- * Supports: scalars, simple lists (- item), and nested keys one level deep.
+ * Supports: scalars, simple lists (- item), and nested objects two levels deep.
+ *
+ * Tracks state with: parentKey (top-level block), childKey (nested block under parent),
+ * and the indent levels at which each was opened.
  */
 function parseFrontmatter(yaml) {
   if (!yaml.trim()) return {};
 
   const result = {};
   const lines = yaml.split("\n");
-  let currentKey = null;
-  let currentIndent = 0;
+
+  // State: which top-level key and (optionally) which child key we are inside
+  let parentKey = null; // e.g., "detection"
+  let parentIndent = -1;
+  let childKey = null; // e.g., "files_any" (always under parentKey)
+  let childIndent = -1;
 
   for (const line of lines) {
-    // Skip empty lines and comments
     if (!line.trim() || line.trim().startsWith("#")) continue;
 
     const indent = line.length - line.trimStart().length;
     const trimmed = line.trim();
 
-    // Top-level key: value
+    // --- Top-level (indent 0) ---
     if (indent === 0 && trimmed.includes(":")) {
+      parentKey = null;
+      childKey = null;
       const colonIdx = trimmed.indexOf(":");
       const key = trimmed.slice(0, colonIdx).trim();
       const value = trimmed.slice(colonIdx + 1).trim();
 
-      if (value) {
-        // Scalar value — strip quotes
-        result[key] = value.replace(/^["']|["']$/g, "");
-        // Convert numeric strings
-        if (/^\d+$/.test(result[key])) {
-          result[key] = parseInt(result[key], 10);
-        }
-        currentKey = null;
+      if (value && value !== "[]") {
+        result[key] = parseScalar(value);
+      } else if (value === "[]") {
+        result[key] = [];
       } else {
-        // Start of nested object or list
         result[key] = {};
-        currentKey = key;
-        currentIndent = indent;
+        parentKey = key;
+        parentIndent = indent;
       }
       continue;
     }
 
-    // Nested content under currentKey
-    if (currentKey && indent > currentIndent) {
-      // List item: "- value"
+    // --- Indented content under a parent key ---
+    if (parentKey && indent > parentIndent) {
+
+      // If we are inside a child key's list, check if this line is still at child-list depth
+      if (childKey && indent > childIndent && trimmed.startsWith("- ")) {
+        const item = trimmed.slice(2).trim().replace(/^["']|["']$/g, "");
+        result[parentKey][childKey].push(item);
+        continue;
+      }
+
+      // If indent dropped back to parent's child level (or we see a new key at that level),
+      // reset childKey so we can pick up a sibling
+      if (childKey && indent <= childIndent) {
+        childKey = null;
+      }
+
+      // List item directly under parent (parent is a list, not an object)
       if (trimmed.startsWith("- ")) {
         const item = trimmed.slice(2).trim().replace(/^["']|["']$/g, "");
-        if (!Array.isArray(result[currentKey])) {
-          result[currentKey] = [];
+        if (!Array.isArray(result[parentKey])) {
+          result[parentKey] = [];
         }
-        result[currentKey].push(item);
+        result[parentKey].push(item);
         continue;
       }
 
-      // Nested key: value (one level)
+      // Nested key: value (child of parent)
       if (trimmed.includes(":")) {
+        if (typeof result[parentKey] !== "object" || Array.isArray(result[parentKey])) {
+          result[parentKey] = {};
+        }
         const colonIdx = trimmed.indexOf(":");
         const nestedKey = trimmed.slice(0, colonIdx).trim();
-        const nestedValue = trimmed.slice(colonIdx + 1).trim().replace(/^["']|["']$/g, "");
+        const nestedValue = trimmed.slice(colonIdx + 1).trim();
 
-        if (typeof result[currentKey] !== "object" || Array.isArray(result[currentKey])) {
-          result[currentKey] = {};
-        }
-
-        // Check if nestedValue starts a list on next lines
-        if (nestedValue) {
-          result[currentKey][nestedKey] = nestedValue;
-          if (/^\d+$/.test(nestedValue)) {
-            result[currentKey][nestedKey] = parseInt(nestedValue, 10);
-          }
+        if (nestedValue && nestedValue !== "[]") {
+          result[parentKey][nestedKey] = parseScalar(nestedValue);
+          childKey = null;
         } else {
-          result[currentKey][nestedKey] = [];
-          // The list items will be picked up on subsequent iterations
-          // We need a sub-key tracker
-          currentKey = currentKey + "." + nestedKey;
-          // Store reference for nested list population
-          const parts = currentKey.split(".");
-          if (parts.length === 2) {
-            if (typeof result[parts[0]] !== "object" || Array.isArray(result[parts[0]])) {
-              result[parts[0]] = {};
-            }
-            result[parts[0]][parts[1]] = [];
-          }
+          // Empty value or [] — this child holds a list
+          result[parentKey][nestedKey] = [];
+          childKey = nestedKey;
+          childIndent = indent;
         }
         continue;
-      }
-    }
-
-    // Handle deeply nested list items (e.g., detection.files_any items)
-    if (currentKey && currentKey.includes(".") && trimmed.startsWith("- ")) {
-      const parts = currentKey.split(".");
-      const item = trimmed.slice(2).trim().replace(/^["']|["']$/g, "");
-      if (parts.length === 2 && result[parts[0]] && Array.isArray(result[parts[0]][parts[1]])) {
-        result[parts[0]][parts[1]].push(item);
-        continue;
-      }
-    }
-
-    // If we hit a non-indented line that isn't handled, reset
-    if (indent <= currentIndent && currentKey) {
-      // Reset to check if this is a new top-level key
-      if (trimmed.includes(":")) {
-        const colonIdx = trimmed.indexOf(":");
-        const key = trimmed.slice(0, colonIdx).trim();
-        const value = trimmed.slice(colonIdx + 1).trim();
-        if (value) {
-          result[key] = value.replace(/^["']|["']$/g, "");
-          if (/^\d+$/.test(result[key])) {
-            result[key] = parseInt(result[key], 10);
-          }
-          currentKey = null;
-        } else {
-          result[key] = {};
-          currentKey = key;
-          currentIndent = indent;
-        }
       }
     }
   }
 
   return result;
+}
+
+/**
+ * Parse a scalar YAML value: strip quotes, convert numbers.
+ */
+function parseScalar(value) {
+  const stripped = value.replace(/^["']|["']$/g, "");
+  if (/^\d+$/.test(stripped)) return parseInt(stripped, 10);
+  return stripped;
 }
 
 /**
@@ -284,7 +259,7 @@ function findTopLevelSections(body) {
     }
 
     // Only match ## headings outside of code blocks
-    if (!inFence && /^## .+/.test(trimmed) && !trimmed.startsWith("### ")) {
+    if (!inFence && /^## .+/.test(trimmed)) {
       sections.push({
         name: trimmed.slice(3).trim().toLowerCase(),
         index: pos,

@@ -69,7 +69,7 @@ export async function init(flags) {
 
     if (existing) {
       // Merge: append template content after existing, before attribution
-      const cleaned = existing.replace(/\n---\n> Configured with.*\n?$/s, "").trimEnd();
+      const cleaned = existing.replace(/\n---\n> Configured with \[`@srbryers\/agent-rig`\].*\n?$/, "").trimEnd();
       content = cleaned + "\n\n" + template.claude_md.trim() + "\n\n" + ATTRIBUTION;
     } else {
       content = `# ${template.meta.name}\n\n` + template.claude_md.trim() + "\n\n" + ATTRIBUTION;
@@ -128,8 +128,14 @@ export async function init(flags) {
   // Check for existing .claude/ directory — prompt if not --force
   const claudeDirExists = await fileExists(join(targetDir, ".claude"));
   if (claudeDirExists && !force) {
-    const existingFiles = filesToWrite.filter((f) => fileExists(f.path));
-    if (existingFiles.length > 0) {
+    let hasExisting = false;
+    for (const f of filesToWrite) {
+      if (await fileExists(f.path)) {
+        hasExisting = true;
+        break;
+      }
+    }
+    if (hasExisting) {
       const ok = await promptYesNo("Existing config detected. Overwrite/merge?");
       if (!ok) {
         console.log("Aborted.");
@@ -146,14 +152,17 @@ export async function init(flags) {
   }
 
   console.log(`Done. Generated ${written} file(s) from template "${template.meta.id}".`);
-  console.log("\nNext steps:");
-  console.log("  1. Review CLAUDE.md and adjust to your preferences");
-  console.log("  2. Check .claude/settings.json hooks");
+  const steps = [
+    "Review CLAUDE.md and adjust to your preferences",
+    "Check .claude/settings.json hooks",
+  ];
   if (template.mcp_servers && Object.keys(template.mcp_servers).length > 0) {
-    console.log("  3. MCP servers may need additional setup (API keys, installs)");
+    steps.push("MCP servers may need additional setup (API keys, installs)");
   }
   if (template.skills && Object.keys(template.skills).length > 0) {
     const skillNames = Object.keys(template.skills).map((s) => `/${s}`).join(", ");
-    console.log(`  4. Try skills: ${skillNames}`);
+    steps.push(`Try skills: ${skillNames}`);
   }
+  console.log("\nNext steps:");
+  steps.forEach((s, i) => console.log(`  ${i + 1}. ${s}`));
 }

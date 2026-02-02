@@ -15,7 +15,10 @@ const flags = {
   list: args.includes("--list"),
   dryRun: args.includes("--dry-run"),
   dir: args.includes("--dir")
-    ? args[args.indexOf("--dir") + 1]
+    ? (() => {
+        const val = args[args.indexOf("--dir") + 1];
+        return val && !val.startsWith("-") ? val : undefined;
+      })()
     : undefined,
   templateId: command === "init" ? nonFlagArgs[1] : undefined,
 };
