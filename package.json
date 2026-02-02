@@ -1,0 +1,26 @@
+{
+  "name": "agentrig",
+  "version": "0.1.0",
+  "description": "Rig up your project for agentic coding. Analyzes any codebase and generates Claude Code configuration.",
+  "type": "module",
+  "bin": {
+    "agentrig": "./bin/agentrig.mjs"
+  },
+  "files": [
+    "bin",
+    "src",
+    "skills"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "license": "MIT",
+  "keywords": [
+    "claude",
+    "ai",
+    "agentic",
+    "coding",
+    "setup",
+    "cli"
+  ]
+}
