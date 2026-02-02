@@ -1,6 +1,6 @@
 {
   "name": "@srbryers/agent-rig",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Rig up your project for agentic coding. Analyzes any codebase and generates Claude Code configuration.",
   "type": "module",
   "bin": {
