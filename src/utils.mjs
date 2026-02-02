@@ -1,7 +1,7 @@
 import { homedir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
-import { stat, cp, readdir } from "node:fs/promises";
+import { stat, cp, readdir, mkdir, writeFile, readFile } from "node:fs/promises";
 import { createInterface } from "node:readline";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -56,4 +56,73 @@ export function promptYesNo(question) {
       resolve(answer.trim().toLowerCase() === "y");
     });
   });
+}
+
+export async function writeFileWithDir(filePath, content) {
+  await mkdir(dirname(filePath), { recursive: true });
+  await writeFile(filePath, content, "utf8");
+}
+
+export async function fileExists(filePath) {
+  try {
+    await stat(filePath);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function readFileIfExists(filePath) {
+  try {
+    return await readFile(filePath, "utf8");
+  } catch {
+    return null;
+  }
+}
+
+export function mergeSettingsJson(existing, newHooks) {
+  let settings;
+  try {
+    settings = existing ? JSON.parse(existing) : {};
+  } catch {
+    settings = {};
+  }
+
+  for (const [event, hookList] of Object.entries(newHooks)) {
+    if (!Array.isArray(hookList)) continue;
+    if (!settings[event]) {
+      settings[event] = [];
+    }
+    for (const hook of hookList) {
+      const alreadyExists = settings[event].some(
+        (h) => h.matcher === hook.matcher && h.command === hook.command
+      );
+      if (!alreadyExists) {
+        settings[event].push(hook);
+      }
+    }
+  }
+
+  return JSON.stringify(settings, null, 2);
+}
+
+export function mergeMcpJson(existing, newServers) {
+  let mcp;
+  try {
+    mcp = existing ? JSON.parse(existing) : {};
+  } catch {
+    mcp = {};
+  }
+
+  if (!mcp.mcpServers) {
+    mcp.mcpServers = {};
+  }
+
+  for (const [name, config] of Object.entries(newServers)) {
+    if (!mcp.mcpServers[name]) {
+      mcp.mcpServers[name] = config;
+    }
+  }
+
+  return JSON.stringify(mcp, null, 2);
 }

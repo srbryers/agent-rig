@@ -8,8 +8,16 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const args = process.argv.slice(2);
 const command = args.find((a) => !a.startsWith("-"));
+// For init, the second non-flag arg is the template ID
+const nonFlagArgs = args.filter((a) => !a.startsWith("-"));
 const flags = {
   force: args.includes("--force") || args.includes("-f"),
+  list: args.includes("--list"),
+  dryRun: args.includes("--dry-run"),
+  dir: args.includes("--dir")
+    ? args[args.indexOf("--dir") + 1]
+    : undefined,
+  templateId: command === "init" ? nonFlagArgs[1] : undefined,
 };
 
 async function printVersion() {
@@ -27,14 +35,21 @@ Usage:
   agentrig <command> [options]
 
 Commands:
-  install     Copy skill files to ~/.claude/skills/project-setup/
-  uninstall   Remove installed skill files
-  status      Show installation status
+  install              Copy skill files to ~/.claude/skills/project-setup/
+  uninstall            Remove installed skill files
+  status               Show installation status
+  init <template>      Generate Claude Code config from a project-type template
 
-Options:
-  --force, -f   Skip overwrite prompt during install
-  --version     Print version
-  --help        Print this help message
+Init Options:
+  --list               List available templates
+  --force              Overwrite existing files without prompting
+  --dry-run            Show what would be generated without writing
+  --dir <path>         Target directory (default: current directory)
+
+General Options:
+  --force, -f          Skip overwrite prompt during install
+  --version            Print version
+  --help               Print this help message
 `.trim());
 }
 
@@ -62,6 +77,11 @@ switch (command) {
   case "status": {
     const { status } = await import("../src/commands/status.mjs");
     await status();
+    break;
+  }
+  case "init": {
+    const { init } = await import("../src/commands/init.mjs");
+    await init(flags);
     break;
   }
   default:

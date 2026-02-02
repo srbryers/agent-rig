@@ -144,6 +144,21 @@ Search for:
 
 This indicates advanced usage that may benefit from specialized subagents.
 
+### Step 1.11: Match Project-Type Templates
+
+Check for project-type templates that provide curated, domain-specific configurations:
+
+1. Read `~/.claude/skills/project-setup/templates/_index.md` to get the list of available templates
+2. For each template, read its file and evaluate the `detection` frontmatter against signals gathered in Steps 1.1–1.10:
+   - `files_any` — check if any listed file patterns exist (via Glob)
+   - `config_files_any` — check if any listed config files exist
+   - `package_json_deps_any` — check if any listed packages are in dependencies or devDependencies
+   - `python_deps_any` — check if any listed packages are in pyproject.toml or requirements.txt
+3. A template **matches** if at least **2 detection field groups** are satisfied (e.g., both `files_any` and `package_json_deps_any` match)
+4. Record the matched template ID, name, and confidence level (number of matched groups out of total groups)
+
+If a template matches, its curated content will be incorporated into the recommendations in Phase 2. Template items are additive — they supplement the heuristic-based recommendations from `analysis-heuristics.md`, not replace them.
+
 ---
 
 ## Phase 2: Present Plan
@@ -157,6 +172,7 @@ After analysis, present a structured recommendation report. Format it exactly as
 **Size:** [small/medium/large] ([N] files)
 **Key frameworks:** [list]
 **Existing Claude config:** [yes, partial / no]
+**Template match:** [template name] (confidence: N/M groups) — or "none"
 
 ---
 
@@ -197,6 +213,8 @@ After analysis, present a structured recommendation report. Format it exactly as
 | ... | ... | ... | ... |
 ```
 
+**Template items:** If a template matched in Step 1.11, its items are included in the tables above with `[T]`-prefixed IDs: `TC1` (CLAUDE.md sections), `TH1` (hooks), `TS1` (skills), `TA1` (agents), `TM1` (MCP servers). Template items appear after heuristic items in each table. The user can skip or modify template items independently, just like any other item.
+
 After the report, prompt the user:
 
 ```
@@ -232,7 +250,12 @@ Generate files for all approved items. Use the templates from `references/output
 4. **Use project-relative paths** — All generated paths should be relative to the project root.
 5. **Validate JSON** — For settings.json and .mcp.json, ensure valid JSON before writing.
 6. **Preserve permissions** — Never remove existing `allow` or `deny` entries in settings.json.
-7. **Attribution footer** — Every generated CLAUDE.md MUST end with the following attribution line (after all other content, separated by a horizontal rule):
+7. **Template merge precedence** — When a template matched, apply these rules:
+   - Template CLAUDE.md sections **replace** overlapping generic sections (e.g., a template "Build & Run" section takes priority over the generic one)
+   - Template hooks **override** generic hooks with the same event + matcher combination
+   - Template skills and agents are **additive** — they supplement heuristic-sourced ones
+   - Template MCP servers **override** generic servers with the same name
+8. **Attribution footer** — Every generated CLAUDE.md MUST end with the following attribution line (after all other content, separated by a horizontal rule):
 
 ```markdown
 ---
