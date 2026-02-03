@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { homedir } from "node:os";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -12,11 +13,45 @@ export function getTemplatesDir() {
 }
 
 /**
+ * Returns the path to the user templates directory.
+ */
+export function getUserTemplatesDir() {
+  return join(homedir(), ".claude", "agent-rig", "templates");
+}
+
+/**
  * List available templates by reading _index.md from the templates directory.
- * Returns [{id, name, description, file}]
+ * Searches both bundled and user template directories.
+ * Returns [{id, name, description, file, source}]
  */
 export async function listTemplates(templatesDir) {
-  const dir = templatesDir || getTemplatesDir();
+  const bundledDir = templatesDir || getTemplatesDir();
+
+  // Load bundled templates
+  const bundled = await listTemplatesFromDir(bundledDir, "bundled");
+
+  // Load user templates
+  const userDir = getUserTemplatesDir();
+  const user = await listTemplatesFromDir(userDir, "user");
+
+  // Merge: user templates supplement bundled, but bundled take precedence on ID collision
+  const byId = new Map();
+  for (const t of bundled) {
+    byId.set(t.id, t);
+  }
+  for (const t of user) {
+    if (!byId.has(t.id)) {
+      byId.set(t.id, t);
+    }
+  }
+
+  return Array.from(byId.values());
+}
+
+/**
+ * List templates from a single directory.
+ */
+async function listTemplatesFromDir(dir, source) {
   const indexPath = join(dir, "_index.md");
   let content;
   try {
@@ -24,7 +59,8 @@ export async function listTemplates(templatesDir) {
   } catch {
     return [];
   }
-  return parseIndex(content);
+  const templates = parseIndex(content);
+  return templates.map((t) => ({ ...t, source, _dir: dir }));
 }
 
 /**
@@ -453,12 +489,12 @@ function parseExternalSkillsTable(content) {
 
 /**
  * Find a template by ID from available templates.
- * Searches the given directory (or bundled templates).
+ * Searches both bundled and user template directories.
  */
 export async function findTemplate(templateId, templatesDir) {
-  const dir = templatesDir || getTemplatesDir();
-  const templates = await listTemplates(dir);
+  const templates = await listTemplates(templatesDir);
   const entry = templates.find((t) => t.id === templateId);
   if (!entry) return null;
+  const dir = entry._dir || templatesDir || getTemplatesDir();
   return parseTemplate(join(dir, entry.file));
 }

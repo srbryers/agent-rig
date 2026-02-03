@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node bin/agentrig.mjs:*)",
+      "Bash(git add:*)"
+    ]
+  }
+}

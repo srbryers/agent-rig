@@ -12,6 +12,12 @@ import {
   findTemplate,
   getTemplatesDir,
 } from "../templates.mjs";
+import {
+  generateSessionId,
+  createFeedbackRecord,
+  saveFeedback,
+} from "../feedback.mjs";
+import { getAllTemplateScores } from "../scoring.mjs";
 
 const ATTRIBUTION = `
 ---
@@ -28,9 +34,21 @@ export async function init(flags) {
       console.log("No templates found.");
       return;
     }
+
+    // Load quality scores (best-effort)
+    let scores = new Map();
+    try {
+      scores = await getAllTemplateScores();
+    } catch {
+      // No feedback data yet
+    }
+
     console.log("Available templates:\n");
     for (const t of templates) {
-      console.log(`  ${t.id.padEnd(20)} ${t.description}`);
+      const score = scores.get(t.id);
+      const tierTag = score ? ` [${score.tier}]` : "";
+      const sourceTag = t.source === "user" ? " (user)" : "";
+      console.log(`  ${t.id.padEnd(20)} ${t.description}${tierTag}${sourceTag}`);
     }
     console.log(`\nUsage: agentrig init <template>`);
     return;
@@ -177,4 +195,106 @@ export async function init(flags) {
     }
     console.log("\nBrowse more at https://skills.sh");
   }
+
+  // Capture feedback (CLI mode: all items are auto-approved)
+  try {
+    const feedbackItems = buildFeedbackItems(template);
+    const record = createFeedbackRecord({
+      sessionId: generateSessionId(),
+      templateId: template.meta.id,
+      templateConfidence: 1,
+      projectType: template.meta.id,
+      frameworks: [],
+      projectSize: "unknown",
+      source: "cli",
+      items: feedbackItems,
+    });
+    await saveFeedback(record);
+  } catch {
+    // Feedback capture is best-effort; never block the user
+  }
+}
+
+/**
+ * Build feedback items from a template's generated content.
+ * In CLI mode, all items are auto-approved.
+ */
+function buildFeedbackItems(template) {
+  const items = [];
+
+  if (template.claude_md) {
+    items.push({
+      id: "C1",
+      category: "claude_md",
+      name: "claude_md",
+      status: "approved",
+      source: "template",
+    });
+  }
+
+  if (template.hooks) {
+    for (const [event, hookList] of Object.entries(template.hooks)) {
+      if (!Array.isArray(hookList)) continue;
+      for (const hook of hookList) {
+        items.push({
+          id: `H-${event}-${hook.matcher || "all"}`,
+          category: "hook",
+          name: hook.matcher || "all",
+          event,
+          status: "approved",
+          source: "template",
+        });
+      }
+    }
+  }
+
+  if (template.skills) {
+    for (const name of Object.keys(template.skills)) {
+      items.push({
+        id: `S-${name}`,
+        category: "skill",
+        name,
+        status: "approved",
+        source: "template",
+      });
+    }
+  }
+
+  if (template.agents) {
+    for (const name of Object.keys(template.agents)) {
+      items.push({
+        id: `A-${name}`,
+        category: "agent",
+        name,
+        status: "approved",
+        source: "template",
+      });
+    }
+  }
+
+  if (template.mcp_servers) {
+    for (const name of Object.keys(template.mcp_servers)) {
+      items.push({
+        id: `M-${name}`,
+        category: "mcp",
+        name,
+        status: "approved",
+        source: "template",
+      });
+    }
+  }
+
+  if (template.external_skills) {
+    for (const skill of template.external_skills) {
+      items.push({
+        id: `E-${skill.name}`,
+        category: "external_skill",
+        name: skill.name,
+        status: "approved",
+        source: "template",
+      });
+    }
+  }
+
+  return items;
 }

@@ -22,6 +22,12 @@ const flags = {
     : undefined,
   templateId: command === "init" ? nonFlagArgs[1] : undefined,
   query: command === "discover" ? nonFlagArgs[1] : undefined,
+  fromSession: args.includes("--from-session")
+    ? (() => {
+        const val = args[args.indexOf("--from-session") + 1];
+        return val && !val.startsWith("-") ? val : undefined;
+      })()
+    : undefined,
 };
 
 async function printVersion() {
@@ -41,15 +47,21 @@ Usage:
 Commands:
   install              Copy skill files to ~/.claude/skills/
   uninstall            Remove installed skill files
-  status               Show installation status
+  status               Show installation status and template quality
   init <template>      Generate Claude Code config from a project-type template
   discover [query]     Search for community skills
+  insights             Show heuristic and template quality from feedback data
+  generate-template    Create a reusable template from a feedback session
+  self-improve         Analyze agent-rig itself and suggest improvements
 
 Init Options:
-  --list               List available templates
+  --list               List available templates (with quality tiers)
   --force              Overwrite existing files without prompting
   --dry-run            Show what would be generated without writing
   --dir <path>         Target directory (default: current directory)
+
+Generate-Template Options:
+  --from-session <id>  Session ID to generate template from
 
 General Options:
   --force, -f          Skip overwrite prompt during install
@@ -92,6 +104,21 @@ switch (command) {
   case "discover": {
     const { discover } = await import("../src/commands/discover.mjs");
     await discover(flags.query);
+    break;
+  }
+  case "insights": {
+    const { insights } = await import("../src/commands/insights.mjs");
+    await insights();
+    break;
+  }
+  case "generate-template": {
+    const { generateTemplate } = await import("../src/commands/generate-template.mjs");
+    await generateTemplate(flags);
+    break;
+  }
+  case "self-improve": {
+    const { selfImprove } = await import("../src/commands/self-improve.mjs");
+    await selfImprove(flags);
     break;
   }
   default:

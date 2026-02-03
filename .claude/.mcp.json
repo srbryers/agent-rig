@@ -1,0 +1,18 @@
+{
+  "mcpServers": {
+    "context7": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp@latest"],
+      "env": {}
+    },
+    "github": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@anthropic-ai/mcp-server-github@latest"],
+      "env": {
+        "GITHUB_TOKEN": "${GITHUB_TOKEN}"
+      }
+    }
+  }
+}

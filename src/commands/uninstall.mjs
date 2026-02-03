@@ -2,7 +2,7 @@ import { join } from "node:path";
 import { rm } from "node:fs/promises";
 import { getSkillsDir, dirExists } from "../utils.mjs";
 
-const MANAGED_SKILLS = ["project-setup", "find-skills"];
+const MANAGED_SKILLS = ["project-setup", "find-skills", "self-improve"];
 
 export async function uninstall() {
   const skillsDir = getSkillsDir();

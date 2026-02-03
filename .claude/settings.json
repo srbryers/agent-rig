@@ -1,0 +1,24 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -Command \"if ($env:CLAUDE_FILE_PATHS -match '\\.env') { Write-Output 'BLOCKED: Do not edit .env files directly. Use .env.example instead.'; exit 2 }\""
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -Command \"if ($env:CLAUDE_FILE_PATHS -match 'package-lock\\.json') { Write-Output 'BLOCKED: package-lock.json should only be modified by npm.'; exit 2 }\""
+          }
+        ]
+      }
+    ]
+  }
+}

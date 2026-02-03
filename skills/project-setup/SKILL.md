@@ -304,6 +304,31 @@ This attribution is required and must not be omitted or modified.
    - If install fails, note failure in summary with manual install command
    - External installs happen AFTER all agent-rig files, so failures don't affect core config
 
+### Phase 3.5: Capture Feedback (Automatic)
+
+Immediately after writing all files, capture a feedback record for this session. This is automatic and should not require user interaction.
+
+1. Build a JSON feedback record containing:
+   - **sessionId**: Generate a UUID for this session
+   - **timestamp**: Current ISO 8601 timestamp
+   - **source**: `"skill"`
+   - **project**: `{ type, frameworks, size }` from Phase 1 analysis
+   - **template**: `{ id, confidence }` from Step 1.11 (or `{ id: "none", confidence: 0 }`)
+   - **items**: Array of every recommendation from Phase 2, each with:
+     - `id`: The recommendation ID (C1, H1, S1, etc.)
+     - `category`: `"claude_md"` | `"hook"` | `"skill"` | `"agent"` | `"mcp"` | `"external_skill"`
+     - `name`: Human-readable name
+     - `event`: Hook event type (for hooks only)
+     - `status`: `"approved"` | `"skipped"` | `"modified"` (based on user response in Phase 2)
+     - `source`: `"heuristic"` | `"template"` | `"discovered"`
+   - **summary**: `{ total, approved, skipped, modified, approvalRate }`
+
+2. Write the record to `~/.claude/agent-rig/feedback/{sessionId}.json`
+   - Create the directory if it doesn't exist: `mkdir -p ~/.claude/agent-rig/feedback`
+   - Use `Write` tool to save the JSON file
+
+3. If feedback capture fails for any reason, log a note but **do not** interrupt the workflow. Feedback is best-effort.
+
 ### Post-Generation Summary
 
 After generating all files, output a summary:
@@ -354,3 +379,43 @@ If very few signals are detected (e.g., a single-file script, no manifest):
 If `git remote -v` fails:
 1. Skip GitHub/GitLab-related recommendations
 2. Note in the report that git-dependent features are unavailable
+
+---
+
+## Phase 4: Template Generation Offer (Conditional)
+
+After Phase 3 is complete, evaluate whether to offer template generation:
+
+### Trigger Conditions (ALL must be true):
+1. Approval rate >= 75% (from the feedback record captured in Phase 3.5)
+2. No high-confidence template match in Step 1.11 (confidence < 0.5 or no match)
+3. At least 3 approved items
+4. The project type is not already covered by a bundled template
+
+### If conditions are met:
+
+Prompt the user:
+
+```
+This analysis had a ${approvalRate}% approval rate with no matching template.
+Would you like to save this as a reusable template for similar projects?
+
+Reply:
+- **yes** — generate a template from this session's approved items
+- **no** — skip template generation
+```
+
+### If the user says yes:
+
+1. Generate a template `.md` file with:
+   - Frontmatter: id (derived from project type), name, description, version: 1, detection rules
+   - `## claude_md` section from the approved CLAUDE.md content
+   - `## hooks` section with approved hooks as JSON
+   - `## skills` section with approved skills as `### subsections`
+   - `## agents` section with approved agents as `### subsections`
+   - `## mcp_servers` section with approved MCP servers as JSON
+   - `## external_skills` table with approved external skills
+
+2. Save to `~/.claude/agent-rig/templates/{id}.md`
+3. Update `~/.claude/agent-rig/templates/_index.md` (create if needed, append row)
+4. Confirm: "Template saved as `{id}`. Use it with `agentrig init {id}` or it will be auto-detected in future analyses."
