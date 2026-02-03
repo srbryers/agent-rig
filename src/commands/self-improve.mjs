@@ -9,9 +9,9 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const AGENT_RIG_ROOT = join(__dirname, "..", "..");
 
 /**
- * CLI command: agentrig self-improve
+ * CLI command: agentic-rig self-improve
  *
- * Runs analysis on agent-rig's own codebase, compares current CLAUDE.md
+ * Runs analysis on agentic-rig's own codebase, compares current CLAUDE.md
  * to what the analysis would generate, and shows a diff with suggestions.
  */
 export async function selfImprove(flags) {

@@ -1,6 +1,6 @@
 # Template Validator
 
-Validate that a project-type template `.md` file will parse correctly through agent-rig's `parseTemplateContent()` function in `src/templates.mjs`.
+Validate that a project-type template `.md` file will parse correctly through agentic-rig's `parseTemplateContent()` function in `src/templates.mjs`.
 
 ## Model
 

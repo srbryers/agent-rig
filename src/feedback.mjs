@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { readdir, readFile, mkdir, writeFile } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 
-const FEEDBACK_DIR = join(homedir(), ".claude", "agent-rig", "feedback");
+const FEEDBACK_DIR = join(homedir(), ".claude", "agentic-rig", "feedback");
 
 /**
  * Returns the feedback storage directory path.

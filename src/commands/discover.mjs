@@ -2,8 +2,8 @@ import { execCommand } from "../utils.mjs";
 
 export async function discover(query) {
   if (!query) {
-    console.error("Usage: agentrig discover <query>");
-    console.error("Example: agentrig discover react");
+    console.error("Usage: agentic-rig discover <query>");
+    console.error("Example: agentic-rig discover react");
     process.exit(1);
   }
 

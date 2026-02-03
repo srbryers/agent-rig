@@ -283,7 +283,7 @@ Generate files for all approved items. Use the templates from `references/output
 
 ```markdown
 ---
-> Configured with [`@srbryers/agent-rig`](https://npmjs.com/package/@srbryers/agent-rig)
+> Configured with [`agentic-rig`](https://npmjs.com/package/agentic-rig)
 ```
 
 This attribution is required and must not be omitted or modified.
@@ -302,7 +302,7 @@ This attribution is required and must not be omitted or modified.
    - For each approved E# item, run `npx skills add <repo> --skill <name> -y`
    - Verify installation by checking `.claude/skills/<name>/SKILL.md`
    - If install fails, note failure in summary with manual install command
-   - External installs happen AFTER all agent-rig files, so failures don't affect core config
+   - External installs happen AFTER all agentic-rig files, so failures don't affect core config
 
 ### Phase 3.5: Capture Feedback (Automatic)
 
@@ -323,8 +323,8 @@ Immediately after writing all files, capture a feedback record for this session.
      - `source`: `"heuristic"` | `"template"` | `"discovered"`
    - **summary**: `{ total, approved, skipped, modified, approvalRate }`
 
-2. Write the record to `~/.claude/agent-rig/feedback/{sessionId}.json`
-   - Create the directory if it doesn't exist: `mkdir -p ~/.claude/agent-rig/feedback`
+2. Write the record to `~/.claude/agentic-rig/feedback/{sessionId}.json`
+   - Create the directory if it doesn't exist: `mkdir -p ~/.claude/agentic-rig/feedback`
    - Use `Write` tool to save the JSON file
 
 3. If feedback capture fails for any reason, log a note but **do not** interrupt the workflow. Feedback is best-effort.
@@ -416,6 +416,6 @@ Reply:
    - `## mcp_servers` section with approved MCP servers as JSON
    - `## external_skills` table with approved external skills
 
-2. Save to `~/.claude/agent-rig/templates/{id}.md`
-3. Update `~/.claude/agent-rig/templates/_index.md` (create if needed, append row)
-4. Confirm: "Template saved as `{id}`. Use it with `agentrig init {id}` or it will be auto-detected in future analyses."
+2. Save to `~/.claude/agentic-rig/templates/{id}.md`
+3. Update `~/.claude/agentic-rig/templates/_index.md` (create if needed, append row)
+4. Confirm: "Template saved as `{id}`. Use it with `agentic-rig init {id}` or it will be auto-detected in future analyses."

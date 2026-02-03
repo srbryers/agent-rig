@@ -18,7 +18,7 @@ export async function uninstall() {
   }
 
   if (removed === 0) {
-    console.log("No agent-rig skills are installed.");
+    console.log("No agentic-rig skills are installed.");
   } else {
     console.log(`\nRemoved ${removed} skill(s).`);
   }

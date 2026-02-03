@@ -1,6 +1,6 @@
 # Project-Type Templates
 
-Available templates for `agentrig init <template>` and automatic detection during `/project-setup`.
+Available templates for `agentic-rig init <template>` and automatic detection during `/project-setup`.
 
 | ID | Name | Description | File |
 |----|------|-------------|------|

@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { readFileIfExists, writeFileWithDir } from "./utils.mjs";
 
-const USER_TEMPLATES_DIR = join(homedir(), ".claude", "agent-rig", "templates");
+const USER_TEMPLATES_DIR = join(homedir(), ".claude", "agentic-rig", "templates");
 
 /**
  * Returns the user templates directory path.
@@ -186,7 +186,7 @@ async function updateUserIndex(templateId, meta) {
   if (!existing) {
     existing = `# User Templates
 
-Generated from successful analyses. Use with \`agentrig init <template>\`.
+Generated from successful analyses. Use with \`agentic-rig init <template>\`.
 
 | ID | Name | Description | File |
 |----|------|-------------|------|

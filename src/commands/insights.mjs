@@ -1,7 +1,7 @@
 import { loadAllFeedback, generateInsights } from "../feedback.mjs";
 
 /**
- * CLI command: agentrig insights
+ * CLI command: agentic-rig insights
  *
  * Aggregates feedback data to show which heuristics and templates
  * produce high-value vs low-value recommendations.
@@ -11,7 +11,7 @@ export async function insights() {
 
   if (records.length === 0) {
     console.log("No feedback data found.");
-    console.log("Run `agentrig init <template>` or `/project-setup` to generate feedback data.");
+    console.log("Run `agentic-rig init <template>` or `/project-setup` to generate feedback data.");
     return;
   }
 

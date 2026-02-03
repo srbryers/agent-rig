@@ -1,11 +1,11 @@
-# agent-rig (v0.4.0)
+# agentic-rig (v0.5.0)
 
 ## Project Overview
 
-CLI tool that analyzes codebases and generates complete Claude Code configurations (CLAUDE.md, hooks, skills, agents, MCP servers). Ships as `@srbryers/agent-rig` on npm.
+CLI tool that analyzes codebases and generates complete Claude Code configurations (CLAUDE.md, hooks, skills, agents, MCP servers). Ships as `agentic-rig` on npm.
 
 The system has three layers:
-1. **CLI commands** (`bin/agentrig.mjs` → `src/commands/`) — `install`, `uninstall`, `status`, `init`, `discover`, `insights`, `generate-template`, `self-improve`
+1. **CLI commands** (`bin/agentic-rig.mjs` → `src/commands/`) — `install`, `uninstall`, `status`, `init`, `discover`, `insights`, `generate-template`, `self-improve`
 2. **Skill system** (`skills/`) — `project-setup` (codebase analysis + config generation), `find-skills` (community skill search), and `self-improve` (feedback-driven self-improvement)
 3. **Feedback loop** (`src/feedback.mjs`, `src/scoring.mjs`) — captures session data, aggregates insights, scores template quality, and drives recursive improvement
 
@@ -18,34 +18,34 @@ Templates are markdown files with YAML frontmatter + structured sections that de
 npm link
 
 # Run CLI directly during development
-node bin/agentrig.mjs --help
+node bin/agentic-rig.mjs --help
 
 # Install bundled skills to ~/.claude/skills/
-agentrig install
+agentic-rig install
 
 # Initialize a project from a template
-agentrig init <template-id>
+agentic-rig init <template-id>
 
 # List available templates (with quality tiers)
-agentrig init --list
+agentic-rig init --list
 
 # Dry run (show what would be generated)
-agentrig init <template-id> --dry-run
+agentic-rig init <template-id> --dry-run
 
 # Search community skills
-agentrig discover <query>
+agentic-rig discover <query>
 
 # Show installation status and template quality
-agentrig status
+agentic-rig status
 
 # Show heuristic and template quality from feedback data
-agentrig insights
+agentic-rig insights
 
 # Create a template from a successful analysis session
-agentrig generate-template --from-session <session-id>
+agentic-rig generate-template --from-session <session-id>
 
-# Analyze agent-rig itself and suggest improvements
-agentrig self-improve
+# Analyze agentic-rig itself and suggest improvements
+agentic-rig self-improve
 
 # Publish to npm
 npm publish --access public
@@ -67,7 +67,7 @@ npm publish --access public
 
 ```
 ├── bin/
-│   └── agentrig.mjs              # CLI entry point — flag parsing, command routing
+│   └── agentic-rig.mjs            # CLI entry point — flag parsing, command routing
 ├── src/
 │   ├── analyze.mjs               # Programmatic codebase analysis functions
 │   ├── feedback.mjs              # Feedback capture, aggregation, and insights
@@ -81,7 +81,7 @@ npm publish --access public
 │       ├── init.mjs              # Generate config from templates (with feedback capture)
 │       ├── insights.mjs          # Show heuristic/template quality from feedback
 │       ├── install.mjs           # Copy bundled skills to ~/.claude/skills/
-│       ├── self-improve.mjs      # Analyze agent-rig itself
+│       ├── self-improve.mjs      # Analyze agentic-rig itself
 │       ├── status.mjs            # Show installation status and quality tiers
 │       └── uninstall.mjs         # Remove installed skills
 ├── skills/
@@ -112,7 +112,7 @@ npm publish --access public
 Feedback and user-generated templates are stored outside the project:
 
 ```
-~/.claude/agent-rig/
+~/.claude/agentic-rig/
 ├── feedback/              # Session JSON files (append-only)
 │   └── {sessionId}.json   # One file per analysis session
 └── templates/             # User-generated templates
@@ -122,7 +122,7 @@ Feedback and user-generated templates are stored outside the project:
 
 ## Template Anatomy
 
-Templates are `.md` files in `skills/project-setup/templates/` (bundled) or `~/.claude/agent-rig/templates/` (user-generated) with this structure:
+Templates are `.md` files in `skills/project-setup/templates/` (bundled) or `~/.claude/agentic-rig/templates/` (user-generated) with this structure:
 
 ```
 ---
@@ -214,7 +214,7 @@ Templates are scored based on accumulated feedback:
 | needs-review | < 65% | 3 |
 | insufficient-data | any | < 3 |
 
-Quality tiers are shown in `agentrig status` and `agentrig init --list`.
+Quality tiers are shown in `agentic-rig status` and `agentic-rig init --list`.
 
 ## Dependencies
 
@@ -224,23 +224,23 @@ Quality tiers are shown in `agentrig status` and `agentrig init --list`.
 
 No automated test framework is configured. Verification is manual:
 
-1. **Template parsing** — `agentrig init --list` confirms templates parse from `_index.md` (both bundled and user)
-2. **Config generation** — `agentrig init <template> --dry-run` validates output without writing files
-3. **Skill installation** — `agentrig install` followed by `agentrig status` confirms file placement
-4. **CLI flags** — `agentrig --help` and `agentrig --version` for flag handling
-5. **Feedback capture** — `agentrig init <template>` followed by `agentrig insights` confirms feedback recording
-6. **Template generation** — `agentrig generate-template --from-session <id>` produces valid template parseable by `parseTemplate()`
-7. **Self-analysis** — `agentrig self-improve` runs without errors against own codebase
+1. **Template parsing** — `agentic-rig init --list` confirms templates parse from `_index.md` (both bundled and user)
+2. **Config generation** — `agentic-rig init <template> --dry-run` validates output without writing files
+3. **Skill installation** — `agentic-rig install` followed by `agentic-rig status` confirms file placement
+4. **CLI flags** — `agentic-rig --help` and `agentic-rig --version` for flag handling
+5. **Feedback capture** — `agentic-rig init <template>` followed by `agentic-rig insights` confirms feedback recording
+6. **Template generation** — `agentic-rig generate-template --from-session <id>` produces valid template parseable by `parseTemplate()`
+7. **Self-analysis** — `agentic-rig self-improve` runs without errors against own codebase
 
 When modifying `src/templates.mjs`, test against all four bundled templates to verify parsing still works correctly.
 
 ## Releases
 
-- Version is tracked in `package.json` (`"version": "0.4.0"`)
+- Version is tracked in `package.json` (`"version": "0.5.0"`)
 - **Publishing is done via GitHub Actions workflow** — never run `npm publish` manually
 - To release: bump version in `package.json`, commit, push, then create a **GitHub Release** (via `gh release create v0.x.x --generate-notes`). The workflow triggers on release publish.
 - The `"files"` field limits the published package to `bin/`, `src/`, and `skills/`
 
 ---
 
-*Generated by [agent-rig](https://github.com/srbryers/agent-rig)*
+*Generated by [agentic-rig](https://github.com/srbryers/agentic-rig)*

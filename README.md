@@ -1,60 +1,60 @@
-# agent-rig
+# agentic-rig
 
 Rig up your project for agentic coding. Analyzes any codebase and generates a complete Claude Code configuration (CLAUDE.md, hooks, skills, subagents, MCP servers).
 
 ## Install
 
 ```bash
-npm i -g @srbryers/agent-rig
+npm i -g agentic-rig
 ```
 
 Or use without installing:
 
 ```bash
-npx @srbryers/agent-rig install
+npx agentic-rig install
 ```
 
 ## Usage
 
 ```
-agentrig install              # Copy skill files to ~/.claude/skills/
-agentrig uninstall            # Remove installed skill files
-agentrig status               # Show installation status
-agentrig init <template>      # Generate config from a project-type template
-agentrig discover [query]     # Search for community skills
-agentrig --version            # Print version
-agentrig --help               # Print usage
+agentic-rig install              # Copy skill files to ~/.claude/skills/
+agentic-rig uninstall            # Remove installed skill files
+agentic-rig status               # Show installation status
+agentic-rig init <template>      # Generate config from a project-type template
+agentic-rig discover [query]     # Search for community skills
+agentic-rig --version            # Print version
+agentic-rig --help               # Print usage
 ```
 
 ### Install options
 
 ```
-agentrig install --force      # Overwrite existing installation without prompting
+agentic-rig install --force      # Overwrite existing installation without prompting
 ```
 
 ### Init options
 
 ```
-agentrig init --list          # List available templates
-agentrig init shopify-theme   # Generate config from the shopify-theme template
-agentrig init shopify-theme --dry-run   # Preview without writing files
-agentrig init shopify-theme --force     # Overwrite existing files without prompting
-agentrig init shopify-theme --dir ./my-project  # Target a specific directory
+agentic-rig init --list          # List available templates
+agentic-rig init shopify-theme   # Generate config from the shopify-theme template
+agentic-rig init shopify-theme --dry-run   # Preview without writing files
+agentic-rig init shopify-theme --force     # Overwrite existing files without prompting
+agentic-rig init shopify-theme --dir ./my-project  # Target a specific directory
 ```
 
 ### Discover options
 
 ```
-agentrig discover react       # Search for React-related community skills
-agentrig discover testing     # Search for testing skills
-agentrig discover shopify     # Search for Shopify skills
+agentic-rig discover react       # Search for React-related community skills
+agentic-rig discover testing     # Search for testing skills
+agentic-rig discover shopify     # Search for Shopify skills
 ```
 
 ## What it does
 
 ### `/project-setup` skill
 
-`agentrig install` copies bundled skills into `~/.claude/skills/`. This includes:
+`agentic-rig install` copies bundled skills into `~/.claude/skills/`. This includes:
 
 - **project-setup** — the main analysis and configuration skill
 - **find-skills** — a meta-skill for searching community skills
@@ -73,18 +73,18 @@ When a project matches a known template (e.g., Shopify theme, FastAPI app), the 
 
 Use `/find-skills <query>` inside Claude Code to search the community skill registry at [skills.sh](https://skills.sh). Results include install commands so you can add skills directly.
 
-### `agentrig init`
+### `agentic-rig init`
 
-For quick setup without full analysis, `agentrig init <template>` generates a complete Claude Code configuration from a curated project-type template. This writes CLAUDE.md, hooks, skills, agents, and MCP server configs in one step.
+For quick setup without full analysis, `agentic-rig init <template>` generates a complete Claude Code configuration from a curated project-type template. This writes CLAUDE.md, hooks, skills, agents, and MCP server configs in one step.
 
 After generation, `init` displays recommended community skills for the template with install commands.
 
-### `agentrig discover`
+### `agentic-rig discover`
 
 Search the community skill registry from the command line. Runs `npx skills find <query>` and displays results with install instructions.
 
 ```bash
-agentrig discover react
+agentic-rig discover react
 ```
 
 ## Available Templates
@@ -96,17 +96,17 @@ agentrig discover react
 | `nextjs-sanity` | Next.js with Sanity CMS, App Router, GROQ, and Sanity Studio |
 | `python-fastapi` | Python API development with FastAPI, Pydantic, and SQLAlchemy |
 
-Run `agentrig init --list` to see all available templates.
+Run `agentic-rig init --list` to see all available templates.
 
 ## Community Skills
 
-Each template includes curated external skill recommendations from the [skills.sh](https://skills.sh) ecosystem. These are shown after `agentrig init` and as E# items during `/project-setup` analysis.
+Each template includes curated external skill recommendations from the [skills.sh](https://skills.sh) ecosystem. These are shown after `agentic-rig init` and as E# items during `/project-setup` analysis.
 
 You can also discover skills manually:
 
 ```bash
 # Via the CLI
-agentrig discover react
+agentic-rig discover react
 
 # Via npx directly
 npx skills find react

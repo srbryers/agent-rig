@@ -1,14 +1,14 @@
 {
-  "name": "@srbryers/agent-rig",
-  "version": "0.4.0",
+  "name": "agentic-rig",
+  "version": "0.5.0",
   "description": "Rig up your project for agentic coding. Analyzes any codebase and generates Claude Code configuration.",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/srbryers/agent-rig.git"
+    "url": "git+https://github.com/srbryers/agentic-rig.git"
   },
   "type": "module",
   "bin": {
-    "agentrig": "./bin/agentrig.mjs"
+    "agentic-rig": "./bin/agentic-rig.mjs"
   },
   "files": [
     "bin",

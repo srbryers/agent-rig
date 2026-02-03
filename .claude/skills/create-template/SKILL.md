@@ -7,7 +7,7 @@ user_invocation: /create-template
 
 # Create Template
 
-Scaffold a new project-type template `.md` file for agent-rig. Templates define the complete Claude Code configuration for a project type (CLAUDE.md content, hooks, skills, agents, MCP servers, and external skills).
+Scaffold a new project-type template `.md` file for agentic-rig. Templates define the complete Claude Code configuration for a project type (CLAUDE.md content, hooks, skills, agents, MCP servers, and external skills).
 
 ## Context
 

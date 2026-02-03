@@ -1,8 +1,15 @@
 {
   "permissions": {
     "allow": [
-      "Bash(node bin/agentrig.mjs:*)",
-      "Bash(git add:*)"
+      "Bash(node bin/agentic-rig.mjs:*)",
+      "Bash(git add:*)",
+      "Bash(gh run list:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(gh release create:*)",
+      "Bash(gh run:*)",
+      "Bash(npm view:*)",
+      "Bash(git mv:*)"
     ]
   }
 }

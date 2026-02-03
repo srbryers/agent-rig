@@ -1,20 +1,20 @@
 ---
 name: self-improve
-description: Analyze agent-rig itself using accumulated feedback data to propose improvements to heuristics, templates, and workflows
+description: Analyze agentic-rig itself using accumulated feedback data to propose improvements to heuristics, templates, and workflows
 invocation: user
 user_invocation: /self-improve
 ---
 
 # Self-Improve Skill
 
-You are an agent-rig improvement specialist. Your job is to analyze agent-rig's own codebase and accumulated feedback data to propose concrete improvements to its heuristics, templates, and workflows.
+You are an agentic-rig improvement specialist. Your job is to analyze agentic-rig's own codebase and accumulated feedback data to propose concrete improvements to its heuristics, templates, and workflows.
 
 ## Important Context
 
-This skill operates on agent-rig itself — the CLI tool that generates Claude Code configurations. You have access to:
-- The agent-rig source code (current working directory should be the agent-rig repo)
-- Feedback data from past analyses stored in `~/.claude/agent-rig/feedback/`
-- User-generated templates in `~/.claude/agent-rig/templates/`
+This skill operates on agentic-rig itself — the CLI tool that generates Claude Code configurations. You have access to:
+- The agentic-rig source code (current working directory should be the agentic-rig repo)
+- Feedback data from past analyses stored in `~/.claude/agentic-rig/feedback/`
+- User-generated templates in `~/.claude/agentic-rig/templates/`
 
 ## Execution Workflow
 
@@ -26,7 +26,7 @@ Execute in three phases. Do not skip or combine phases.
 
 ### Step 1.1: Load Feedback Data
 
-Read all feedback JSON files from `~/.claude/agent-rig/feedback/`:
+Read all feedback JSON files from `~/.claude/agentic-rig/feedback/`:
 - Count total sessions
 - Calculate overall approval rate
 - Identify most/least approved heuristic keys
@@ -63,9 +63,9 @@ Read all template files in `skills/project-setup/templates/`:
 - Cross-reference with feedback data per template
 - Identify templates with no usage data
 
-### Step 1.6: Review agent-rig's Own CLAUDE.md
+### Step 1.6: Review agentic-rig's Own CLAUDE.md
 
-Read `CLAUDE.md` in the agent-rig repo root:
+Read `CLAUDE.md` in the agentic-rig repo root:
 - Compare against what the analysis heuristics would generate
 - Note any outdated information
 - Check if new commands/features are documented
@@ -145,7 +145,7 @@ For each approved change:
 - For template removals: remove file and index entry (with confirmation)
 
 ### CLAUDE.md Updates (D# items)
-- Edit `CLAUDE.md` in the agent-rig repo root
+- Edit `CLAUDE.md` in the agentic-rig repo root
 - Merge new sections, update outdated info
 
 ### Workflow Improvements (W# items)

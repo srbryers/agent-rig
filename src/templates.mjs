@@ -16,7 +16,7 @@ export function getTemplatesDir() {
  * Returns the path to the user templates directory.
  */
 export function getUserTemplatesDir() {
-  return join(homedir(), ".claude", "agent-rig", "templates");
+  return join(homedir(), ".claude", "agentic-rig", "templates");
 }
 
 /**

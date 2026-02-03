@@ -34,15 +34,15 @@ async function printVersion() {
   const pkg = JSON.parse(
     await readFile(join(__dirname, "..", "package.json"), "utf8")
   );
-  console.log(`agentrig v${pkg.version}`);
+  console.log(`agentic-rig v${pkg.version}`);
 }
 
 function printHelp() {
   console.log(`
-agentrig — Rig up your project for agentic coding
+agentic-rig — Rig up your project for agentic coding
 
 Usage:
-  agentrig <command> [options]
+  agentic-rig <command> [options]
 
 Commands:
   install              Copy skill files to ~/.claude/skills/
@@ -52,7 +52,7 @@ Commands:
   discover [query]     Search for community skills
   insights             Show heuristic and template quality from feedback data
   generate-template    Create a reusable template from a feedback session
-  self-improve         Analyze agent-rig itself and suggest improvements
+  self-improve         Analyze agentic-rig itself and suggest improvements
 
 Init Options:
   --list               List available templates (with quality tiers)

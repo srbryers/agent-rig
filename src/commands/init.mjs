@@ -21,7 +21,7 @@ import { getAllTemplateScores } from "../scoring.mjs";
 
 const ATTRIBUTION = `
 ---
-> Configured with [\`@srbryers/agent-rig\`](https://npmjs.com/package/@srbryers/agent-rig)
+> Configured with [\`agentic-rig\`](https://npmjs.com/package/agentic-rig)
 `.trimStart();
 
 export async function init(flags) {
@@ -50,7 +50,7 @@ export async function init(flags) {
       const sourceTag = t.source === "user" ? " (user)" : "";
       console.log(`  ${t.id.padEnd(20)} ${t.description}${tierTag}${sourceTag}`);
     }
-    console.log(`\nUsage: agentrig init <template>`);
+    console.log(`\nUsage: agentic-rig init <template>`);
     return;
   }
 
@@ -87,7 +87,7 @@ export async function init(flags) {
 
     if (existing) {
       // Merge: append template content after existing, before attribution
-      const cleaned = existing.replace(/\n?---\n> Configured with \[`@srbryers\/agent-rig`\].*[\s]*$/, "").trimEnd();
+      const cleaned = existing.replace(/\n?---\n> Configured with \[`agentic-rig`\].*[\s]*$/, "").trimEnd();
       content = cleaned + "\n\n" + template.claude_md.trim() + "\n\n" + ATTRIBUTION;
     } else {
       content = `# ${template.meta.name}\n\n` + template.claude_md.trim() + "\n\n" + ATTRIBUTION;
