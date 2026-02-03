@@ -5,7 +5,7 @@
 CLI tool that analyzes codebases and generates complete Claude Code configurations (CLAUDE.md, hooks, skills, agents, MCP servers). Ships as `agentic-rig` on npm.
 
 The system has three layers:
-1. **CLI commands** (`bin/agentic-rig.mjs` → `src/commands/`) — `install`, `uninstall`, `status`, `init`, `discover`, `insights`, `generate-template`, `self-improve`
+1. **CLI commands** (`bin/cli.mjs` → `src/commands/`) — `install`, `uninstall`, `status`, `init`, `discover`, `insights`, `generate-template`, `self-improve`
 2. **Skill system** (`skills/`) — `project-setup` (codebase analysis + config generation), `find-skills` (community skill search), and `self-improve` (feedback-driven self-improvement)
 3. **Feedback loop** (`src/feedback.mjs`, `src/scoring.mjs`) — captures session data, aggregates insights, scores template quality, and drives recursive improvement
 
@@ -18,7 +18,7 @@ Templates are markdown files with YAML frontmatter + structured sections that de
 npm link
 
 # Run CLI directly during development
-node bin/agentic-rig.mjs --help
+node bin/cli.mjs --help
 
 # Install bundled skills to ~/.claude/skills/
 agentic-rig install
@@ -67,7 +67,7 @@ npm publish --access public
 
 ```
 ├── bin/
-│   └── agentic-rig.mjs            # CLI entry point — flag parsing, command routing
+│   └── cli.mjs                    # CLI entry point — flag parsing, command routing
 ├── src/
 │   ├── analyze.mjs               # Programmatic codebase analysis functions
 │   ├── feedback.mjs              # Feedback capture, aggregation, and insights

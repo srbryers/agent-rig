@@ -8,7 +8,7 @@
   },
   "type": "module",
   "bin": {
-    "agentic-rig": "./bin/agentic-rig.mjs"
+    "agentic-rig": "./bin/cli.mjs"
   },
   "files": [
     "bin",
