@@ -74,14 +74,14 @@ npm publish --access public
 │   ├── scoring.mjs               # Template quality scoring and tier assignment
 │   ├── template-generator.mjs    # Generate templates from feedback sessions
 │   ├── templates.mjs             # Template parser (frontmatter, sections, JSON blocks)
-│   ├── utils.mjs                 # Shared utilities (file ops, merging, CLI prompts)
+│   ├── utils.mjs                 # Shared utilities (file ops, merging, CLI prompts, input sanitization)
 │   └── commands/
 │       ├── discover.mjs          # Search community skills via npx
 │       ├── generate-template.mjs # Create template from feedback session
 │       ├── init.mjs              # Generate config from templates (with feedback capture)
 │       ├── insights.mjs          # Show heuristic/template quality from feedback
 │       ├── install.mjs           # Copy bundled skills to .claude/skills/
-│       ├── self-improve.mjs      # Analyze agentic-rig itself
+│       ├── self-improve.mjs      # Analyze agentic-rig itself (includes security coverage audit)
 │       ├── status.mjs            # Show installation status and quality tiers
 │       └── uninstall.mjs         # Remove installed skills
 ├── skills/
@@ -219,6 +219,25 @@ Templates are scored based on accumulated feedback:
 | insufficient-data | any | < 3 |
 
 Quality tiers are shown in `agentic-rig status` and `agentic-rig init --list`.
+
+## Security
+
+### Template Guard Requirements
+
+Every bundled template must include all four PreToolUse guard hooks:
+
+1. **`.env` guard** — blocks edits to `.env*` files (secrets)
+2. **Lock file guard** — blocks edits to ecosystem-specific lock files (`package-lock.json`, `yarn.lock`, `poetry.lock`, etc.)
+3. **Build artifact guard** — blocks edits to compiled/generated output (`dist/`, `build/`, `*.min.js`, `__pycache__/`, etc.)
+4. **Security Notes** — a `### Security Notes` subsection in the template's `claude_md` section with framework-specific security guidance
+
+Migration guards are included where applicable (Prisma, Alembic).
+
+The `self-improve` command and skill both audit templates for these requirements and flag gaps.
+
+### Input Sanitization
+
+`execCommand()` in `src/utils.mjs` runs with `shell: true` (required for Windows `.cmd` shim compatibility). All user-provided arguments passed to `execCommand()` **must** be sanitized with `sanitizeShellArg()` first. This function strips shell metacharacters (`;&|`$(){}[]<>!#\\'"`).
 
 ## Dependencies
 
