@@ -281,7 +281,7 @@ Generate files for all approved items. Use the templates from `references/output
 ### Rules
 
 1. **Merge, don't overwrite** — If `.claude/settings.json` exists, read it first and merge new hooks into the existing structure. Same for CLAUDE.md and .mcp.json.
-2. **Respect platform** — Check the platform (win32, darwin, linux) and adjust commands accordingly. See `references/windows-considerations.md`.
+2. **Detect platform before generating hooks** — Run `uname -s` (or check the OS from Claude Code environment context) to determine the platform. Default to Unix/macOS hook syntax (bash `case` statements) for all platforms except Windows. Only use PowerShell hook syntax if the platform is confirmed as Windows. See `references/windows-considerations.md` for Windows alternatives.
 3. **One file at a time** — Write each file individually, confirming the path before writing.
 4. **Use project-relative paths** — All generated paths should be relative to the project root.
 5. **Validate JSON** — For settings.json and .mcp.json, ensure valid JSON before writing.
